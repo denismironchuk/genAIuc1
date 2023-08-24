@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -26,19 +27,22 @@ public class CountriesController {
     public String getCountries(@RequestParam(required = false) String countryName,
                                @RequestParam(required = false) Integer population,
                                @RequestParam(required = false) SortDirection sort,
-                               @RequestParam(required = false) String param4) throws JsonProcessingException {
+                               @RequestParam(required = false) Integer limit) throws JsonProcessingException {
         String response = templ.getForObject(COUNTRIES_URL, String.class);
-        JsonNode result = objectMapper.readTree(response);
+        JsonNode countries = objectMapper.readTree(response);
         if (countryName != null) {
-            result = filterByCountryName(countryName, result);
+            countries = filterByCountryName(countryName, countries);
         }
         if (population != null) {
-            result = filterByPopulation(population, result);
+            countries = filterByPopulation(population, countries);
         }
         if (sort != null) {
-            result = sortByName(sort, result);
+            countries = sortByName(sort, countries);
         }
-        return result.toString();
+        if (limit != null) {
+            countries = limitCountries(limit, countries);
+        }
+        return countries.toString();
     }
 
     private JsonNode filterByCountryName(String searchCountryName, JsonNode rootNode) {
@@ -75,6 +79,15 @@ public class CountriesController {
         }
         nodes.stream().sorted(nameComparator).forEach(sortedNodes::add);
         return sortedNodes;
+    }
+
+    private JsonNode limitCountries(Integer limit, JsonNode rootNode) {
+        Iterator<JsonNode> countriesItr = rootNode.elements();
+        ArrayNode limitedNodes = objectMapper.createArrayNode();
+        while (countriesItr.hasNext() && limitedNodes.size() < limit) {
+            limitedNodes.add(countriesItr.next());
+        }
+        return limitedNodes;
     }
 
     private enum SortDirection {
