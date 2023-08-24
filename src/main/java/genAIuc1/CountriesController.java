@@ -45,7 +45,7 @@ public class CountriesController {
         return countries.toString();
     }
 
-    private JsonNode filterByCountryName(String searchCountryName, JsonNode rootNode) {
+    JsonNode filterByCountryName(String searchCountryName, JsonNode rootNode) {
         ArrayNode filteredNodes = objectMapper.createArrayNode();
         for (JsonNode countryNode : rootNode) {
             String countryName = countryNode.at(NAME_PATH).asText();
@@ -56,7 +56,7 @@ public class CountriesController {
         return filteredNodes;
     }
 
-    private JsonNode filterByPopulation(Integer searchPopulation, JsonNode rootNode) {
+    JsonNode filterByPopulation(Integer searchPopulation, JsonNode rootNode) {
         ArrayNode filteredNodes = objectMapper.createArrayNode();
         for (JsonNode countryNode : rootNode) {
             int population = countryNode.at("/population").asInt(Integer.MAX_VALUE);
@@ -67,7 +67,7 @@ public class CountriesController {
         return filteredNodes;
     }
 
-    private JsonNode sortByName(SortDirection direction, JsonNode rootNode) {
+    JsonNode sortByName(SortDirection direction, JsonNode rootNode) {
         ArrayNode sortedNodes = objectMapper.createArrayNode();
         List<JsonNode> nodes = new ArrayList<>();
         for (JsonNode countryNode : rootNode) {
@@ -81,7 +81,7 @@ public class CountriesController {
         return sortedNodes;
     }
 
-    private JsonNode limitCountries(Integer limit, JsonNode rootNode) {
+    JsonNode limitCountries(Integer limit, JsonNode rootNode) {
         Iterator<JsonNode> countriesItr = rootNode.elements();
         ArrayNode limitedNodes = objectMapper.createArrayNode();
         while (countriesItr.hasNext() && limitedNodes.size() < limit) {
@@ -90,7 +90,7 @@ public class CountriesController {
         return limitedNodes;
     }
 
-    private enum SortDirection {
+    enum SortDirection {
         ascend, descend
     }
 }
